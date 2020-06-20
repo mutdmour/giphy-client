@@ -1,48 +1,42 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Container, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import { observer } from 'mobx-react';
-import { context } from '../../stores/context';
+import { useStores } from '../../hooks/use-stores'
 
-@observer
-class GiphyGrid extends React.PureComponent {
-  state = {
-    gifs: [],
-    loading: true,
-    error: false
-  };
 
-  componentDidMount() {
-    this.getGifs();
-  }
+const GiphyGrid = observer(() => {
+  const { gifsStore } = useStores();
 
-  renderContent() {
-    if (this.state.error) {
-      return <Alert variant="danger">Something went wrong in fetching gifs <a onClick={() => this.getGifs()} href="#">Try again</a></Alert>
-    }
+  useEffect(() => {
+    gifsStore.getGifs();
+  }, [gifsStore, gifsStore.getGifs]);
 
-    if (this.state.loading) {
-      return <Spinner animation="border" role="status">
-        <span className="sr-only">Loading...</span>
-      </Spinner>;
-    }
+  const renderContent = () => {
+    // if (this.state.error) {
+    //   return <Alert variant="danger">Something went wrong in fetching gifs <a onClick={() => this.getGifs()} href="#">Try again</a></Alert>
+    // }
 
-    const gifs = this.state.gifs.map((gif) => {
+    // if (this.state.loading) {
+    //   return <Spinner animation="border" role="status">
+    //     <span className="sr-only">Loading...</span>
+    //   </Spinner>;
+    // }
+
+    const gifs = gifsStore.gifs.map((gif) => {
       const url = gif?.images?.downsized_large?.url;
       return (<Col md="auto" className="gif-container">
-        {url && <img src={url} />}
+        {url && <img src={url} alt="" />}
       </Col>);
     });
 
     return gifs;
   }
 
-  render() {
-    return <Container fluid className="gif-grid">
-      <Row>
-        { this.renderContent() }
-      </Row>
-    </Container>;
-  }
-}
+  return <Container fluid className="gif-grid">
+    <Row>
+      { renderContent() }
+    </Row>
+  </Container>;
+});
 
 export default GiphyGrid;
